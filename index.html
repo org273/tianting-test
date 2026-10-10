@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>天庭编制测试</title>
+<link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Noto+Serif+SC:wght@400;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700&display=swap">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#fdf6ee;--card:#fff;--text:#1a1b1c;--text2:#6b7280;--line:#e8e0d4;
+  --gold:#8a5a2a;--gold-light:#e1b98f;--red:#c47a86;--green:#5a9a6a;--blue:#4a7bc4;
+}
+html,body{background:#f0e8dc;font-family:'Noto Sans SC','PingFang SC',sans-serif;color:var(--text);line-height:1.6}
+body{max-width:480px;margin:0 auto;min-height:100vh;background:var(--bg);position:relative}
+.screen{display:none;min-height:100vh;padding:24px 20px 40px}
+.screen.active{display:block}
+h1,h2,h3{font-family:'Noto Serif SC',serif}
+
+/* ===== 密码门 ===== */
+#screen-password{display:flex;flex-direction:column;justify-content:center;align-items:center;min-height:100vh;text-align:center}
+.lock-icon{width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,#e1b98f,#c99a5e);display:flex;align-items:center;justify-content:center;margin-bottom:20px}
+.lock-icon svg{width:36px;height:36px;fill:#fff}
+#screen-password h1{font-size:24px;font-weight:700;margin-bottom:8px;letter-spacing:2px}
+#screen-password .sub{font-size:13px;color:var(--text2);margin-bottom:32px}
+.pwd-input{width:100%;max-width:300px;padding:14px 16px;border:1.5px solid var(--line);border-radius:12px;font-size:16px;text-align:center;letter-spacing:4px;outline:none;background:#fff;transition:border-color .2s}
+.pwd-input:focus{border-color:var(--gold)}
+.pwd-error{color:#e05050;font-size:12px;margin-top:10px;min-height:18px}
+.btn{display:block;width:100%;max-width:300px;padding:14px;border:none;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;transition:opacity .2s;text-align:center}
+.btn-primary{background:linear-gradient(135deg,#8a5a2a,#a67842);color:#fff;margin-top:16px}
+.btn-primary:active{opacity:.85}
+.btn-outline{background:transparent;border:1.5px solid var(--gold);color:var(--gold)}
+.admin-entry{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);font-size:11px;color:#ccc;cursor:pointer;user-select:none}
+
+/* ===== 欢迎页 ===== */
+#screen-welcome{text-align:center;padding-top:60px}
+.hero-img{width:180px;height:180px;border-radius:20px;margin:0 auto 24px;object-fit:cover;box-shadow:0 8px 24px rgba(138,90,42,.15)}
+#screen-welcome h1{font-size:26px;font-weight:700;margin-bottom:12px}
+#screen-welcome .desc{font-size:13px;color:var(--text2);max-width:320px;margin:0 auto 32px;line-height:1.8}
+.times-left{font-size:13px;color:var(--gold);background:rgba(225,185,143,.15);padding:6px 16px;border-radius:20px;display:inline-block;margin-bottom:20px}
+
+/* ===== 答题页 ===== */
+.progress-bar{width:100%;height:6px;background:var(--line);border-radius:3px;margin-bottom:8px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,#8a5a2a,#c99a5e);border-radius:3px;transition:width .3s}
+.q-progress-text{font-size:12px;color:var(--text2);margin-bottom:24px;text-align:right}
+.q-text{font-size:19px;font-weight:600;font-family:'Noto Serif SC',serif;margin-bottom:24px;line-height:1.5}
+.opt{display:block;width:100%;padding:16px;margin-bottom:12px;background:#fff;border:1.5px solid var(--line);border-radius:12px;font-size:14px;text-align:left;cursor:pointer;transition:all .2s;color:var(--text);line-height:1.5}
+.opt.selected{border-color:var(--gold);background:rgba(225,185,143,.12)}
+.opt:active{background:#faf5ec}
+.nav-row{display:flex;gap:10px;margin-top:20px}
+.nav-row .btn{margin-top:0;flex:1}
+.btn-back{background:#f5f0e8;color:var(--text2);border:1.5px solid var(--line)}
+.btn-next{background:var(--gold);color:#fff}
+.btn-next:disabled{opacity:.4;cursor:not-allowed}
+
+/* ===== 结果页 ===== */
+#screen-result{padding-top:20px}
+.result-card{background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 20px rgba(138,90,42,.08)}
+.result-hero{background:linear-gradient(180deg,#fdf0e0,#fff);padding:28px 20px 20px;text-align:center}
+.result-god-name{font-size:36px;font-weight:900;letter-spacing:8px;font-family:'Noto Serif SC',serif;color:var(--gold)}
+.result-god-title{font-size:12px;color:var(--text2);margin-top:6px;letter-spacing:2px}
+.result-pop{font-size:11px;color:#999;margin-top:8px}
+.result-img{width:140px;height:140px;border-radius:16px;margin:16px auto;display:block;object-fit:cover}
+.tag-row{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:4px}
+.tag{font-size:11px;padding:4px 12px;border-radius:12px;background:rgba(196,122,134,.12);color:var(--red)}
+.radar-box{padding:16px 20px;background:#faf7f2}
+.radar-title{font-size:12px;font-weight:600;color:var(--gold);margin-bottom:10px}
+.radar-item{margin-bottom:8px}
+.radar-label{display:flex;justify-content:space-between;font-size:11px;color:var(--text2);margin-bottom:3px}
+.radar-track{height:6px;background:#eee;border-radius:3px;overflow:hidden}
+.radar-fill{height:100%;background:linear-gradient(90deg,#c99a5e,#e1b98f);border-radius:3px}
+.sec{padding:16px 20px;border-top:1px solid var(--line)}
+.sec h3{font-size:14px;font-weight:700;margin-bottom:8px;color:var(--gold)}
+.sec p{font-size:13px;color:#374151;line-height:1.8}
+.sec .psych{background:rgba(155,187,244,.08);padding:12px;border-radius:10px}
+.sec .psych h3{color:var(--blue)}
+.sec .pitfall h3{color:#e05050}
+.advice{margin:16px 20px;padding:12px;background:rgba(196,122,134,.1);border-radius:10px;text-align:center;font-size:12px;color:var(--red)}
+.action-row{display:flex;gap:10px;margin:20px 0}
+.action-row .btn{margin-top:0;flex:1;padding:12px;font-size:13px}
+.btn-save{background:var(--gold);color:#fff}
+.btn-copy{background:#fff;border:1.5px solid var(--gold);color:var(--gold)}
+.btn-retake{background:#fff;border:1.5px solid var(--line);color:var(--text2)}
+.btn-review{background:linear-gradient(135deg,#e8a84c,#d4882a);color:#fff}
+.share-tip{font-size:11px;color:#999;text-align:center;margin-top:8px;min-height:16px}
+
+/* ===== 弹窗 ===== */
+.modal-mask{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:100;align-items:center;justify-content:center;padding:20px}
+.modal-mask.show{display:flex}
+.modal{background:#fff;border-radius:16px;padding:28px 24px;max-width:340px;width:100%;text-align:center}
+.modal h3{font-size:18px;margin-bottom:12px;color:var(--gold)}
+.modal p{font-size:13px;color:var(--text2);line-height:1.8;margin-bottom:20px}
+.modal .btn{margin-top:0}
+
+/* ===== 管理员页 ===== */
+#screen-admin{padding-top:20px}
+#screen-admin h2{font-size:20px;margin-bottom:16px}
+.admin-section{background:#fff;border-radius:12px;padding:16px;margin-bottom:14px}
+.admin-section h3{font-size:14px;margin-bottom:10px;color:var(--gold)}
+.admin-input{width:100%;padding:10px 12px;border:1.5px solid var(--line);border-radius:8px;font-size:14px;outline:none;margin-bottom:10px}
+.pwd-list{max-height:300px;overflow-y:auto;font-size:12px}
+.pwd-row{display:flex;justify-content:space-between;align-items:center;padding:8px;border-bottom:1px solid #f0ece4}
+.pwd-row .pwd{font-family:monospace;letter-spacing:1px}
+.pwd-row .used{color:var(--text2);font-size:11px}
+.pwd-row .used.exceed{color:#e05050}
+.admin-btn{padding:8px 14px;font-size:12px;border:none;border-radius:8px;background:var(--gold);color:#fff;cursor:pointer;margin-right:6px;margin-top:6px}
+.admin-btn.outline{background:#f5f0e8;color:var(--gold)}
+.seed-box{width:100%;height:80px;font-size:10px;font-family:monospace;padding:8px;border:1px solid var(--line);border-radius:6px;resize:vertical}
+.toast{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,.75);color:#fff;padding:12px 24px;border-radius:10px;font-size:13px;z-index:200;opacity:0;transition:opacity .3s;pointer-events:none}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+
+<!-- 密码门 -->
+<div class="screen active" id="screen-password">
+  <div class="lock-icon">
+    <svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1s3.1 1.39 3.1 3.1v2z"/></svg>
+  </div>
+  <h1>天庭编制测试</h1>
+  <div class="sub">输入密码开始测试 · 每个密码可测3次</div>
+  <input type="text" class="pwd-input" id="pwd-input" placeholder="请输入密码" maxlength="12" autocomplete="off">
+  <div class="pwd-error" id="pwd-error"></div>
+  <button class="btn btn-primary" onclick="verifyPassword()">开始测试</button>
+  <div class="admin-entry" onclick="adminClick()">管理员入口</div>
+</div>
+
+<!-- 欢迎页 -->
+<div class="screen" id="screen-welcome">
+  <img class="hero-img" src="https://aka.doubaocdn.com/s/hOPhyqxTDy" alt="天庭编制测试">
+  <h1>你在天庭是什么编制？</h1>
+  <div class="desc">16道真实场景题，测出你的天庭岗位 + 编制等级。<br>原来神仙也在打工。</div>
+  <div class="times-left" id="times-left"></div>
+  <button class="btn btn-primary" onclick="startQuiz()">开始答题</button>
+</div>
+
+<!-- 答题页 -->
+<div class="screen" id="screen-quiz">
+  <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+  <div class="q-progress-text" id="q-progress-text"></div>
+  <div class="q-text" id="q-text"></div>
+  <div id="options-box"></div>
+  <div class="nav-row">
+    <button class="btn btn-back" id="btn-back" onclick="prevQuestion()">上一题</button>
+    <button class="btn btn-next" id="btn-next" onclick="nextQuestion()">下一题</button>
+  </div>
+</div>
+
+<!-- 结果页 -->
+<div class="screen" id="screen-result">
+  <div class="result-card">
+    <div class="result-hero">
+      <div class="result-god-name" id="r-name"></div>
+      <div class="result-god-title" id="r-title"></div>
+      <div class="result-pop" id="r-pop"></div>
+      <img class="result-img" id="r-img" src="">
+      <div class="tag-row" id="r-tags"></div>
+    </div>
+    <div class="radar-box">
+      <div class="radar-title">五维法力值</div>
+      <div id="r-radar"></div>
+    </div>
+    <div class="sec">
+      <h3>你的天庭日常</h3>
+      <p id="r-daily"></p>
+    </div>
+    <div class="sec psych">
+      <h3>心理学解读</h3>
+      <p id="r-psych"></p>
+    </div>
+    <div class="sec">
+      <h3>你的天赋</h3>
+      <p id="r-talent"></p>
+    </div>
+    <div class="sec pitfall">
+      <h3>你的盲区</h3>
+      <p id="r-pitfall"></p>
+    </div>
+    <div class="advice" id="r-advice"></div>
+    <div class="sec">
+      <h3>你的神仙搭档</h3>
+      <p id="r-partner"></p>
+    </div>
+    <div class="sec">
+      <h3>渡劫提醒</h3>
+      <p id="r-trib"></p>
+    </div>
+    <div class="sec">
+      <h3>前世今生</h3>
+      <p id="r-past"></p>
+    </div>
+  </div>
+
+  <div class="action-row">
+    <button class="btn btn-save" onclick="saveImage()">保存长图</button>
+    <button class="btn btn-copy" onclick="copyLink()">复制链接</button>
+  </div>
+  <div class="action-row">
+    <button class="btn btn-retake" onclick="retake()">再测一次</button>
+    <button class="btn btn-review" onclick="showReview()">好评有礼</button>
+  </div>
+  <div class="share-tip" id="share-tip"></div>
+</div>
+
+<!-- 好评弹窗 -->
+<div class="modal-mask" id="review-modal">
+  <div class="modal">
+    <h3>好评有礼</h3>
+    <p>在店铺完成好评后，请联系客服发送好评截图，即可领取 1 元返现。</p>
+    <button class="btn btn-primary" onclick="closeReview()">我知道了</button>
+  </div>
+</div>
+
+<!-- 管理员页 -->
+<div class="screen" id="screen-admin">
+  <h2>管理员后台</h2>
+  <div class="admin-section">
+    <h3>生成随机密码</h3>
+    <input class="admin-input" type="number" id="gen-count" value="20" min="1" max="200" placeholder="生成数量">
+    <button class="admin-btn" onclick="genPasswords()">生成密码</button>
+  </div>
+  <div class="admin-section">
+    <h3>密码列表（点导出种子后粘贴回HTML）</h3>
+    <div class="pwd-list" id="admin-pwd-list"></div>
+    <button class="admin-btn" onclick="exportPasswords()">复制密码列表</button>
+    <button class="admin-btn outline" onclick="exportSeed()">复制种子代码</button>
+    <button class="admin-btn outline" onclick="resetAll()">重置全部次数</button>
+  </div>
+  <div class="admin-section">
+    <h3>种子代码（粘贴回 HTML 中 INITIAL_PASSWORDS）</h3>
+    <textarea class="seed-box" id="seed-output" readonly></textarea>
+  </div>
+  <button class="btn btn-back" onclick="location.reload()">返回前台</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ====== Supabase 配置 ======
+const SUPABASE_URL = 'https://fdhkwtdskvkkpnjmbcot.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkaGt3dGRza3Zra3Buam1iY290Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE2NTQ4MzQsImV4cCI6MjEwNzIzMDgzNH0.0qtptecs8mOLouHAWbpBN1ym-i-S84VpmE8Hc2ltDbU';
+const SB_HEADERS = {
+  'apikey': SUPABASE_ANON_KEY,
+  'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
+  'Content-Type': 'application/json',
+  'Prefer': 'return=representation'
+};
+
+// ====== 8种神仙数据 ======
+const GODS = [
+  {
+    id:'yuelao', name:'月老', title:'姻缘司 · 天庭正编', img:'https://aka.doubaocdn.com/s/hOPhyqxTDy',
+    tags:['热心','嘴硬心软','红娘体质'], pop:'人群占比：16%',
+    dims:[9,3,5,5,9,9],
+    radar:[{label:'人缘值',v:92},{label:'财运值',v:45},{label:'逍遥值',v:60},{label:'卷王值',v:38},{label:'法力值',v:70}],
+    daily:'你是姻缘司最老的员工，每天抱着红簿子在南天门蹲点。朋友分手比自己失恋还急，CP成了比当事人还开心。谁家孩子还单身你比谁都清楚，红线牵过千百根，偶尔也牵歪。',
+    psych:'心理学里有个概念叫"共情准确性"（empathic accuracy）——就是你能多准地读出别人的情绪状态。你这项能力可能比90%的人都强。但研究者也发现一个悖论：共情高的人更容易"共情疲劳"——你把别人的情绪都接住了，谁来接你的？',
+    talent:'你天生能把不同圈子的人连起来，社会学家帕特南管这叫"桥接型社会资本"。你不是最深入一个圈子的，但你是那个让不同圈子之间有连接的人。',
+    pitfall:'你的情绪边界太模糊了。朋友难过你跟着哭，朋友恋爱你跟着甜——时间久了你会分不清哪些情绪是你的，哪些是别人的。心理学叫这"情绪传染"过度。',
+    advice:'练习一句咒语："那是你的情绪，不是我的。"你可以关心朋友，但不用把朋友的人生扛在自己肩上。',
+    partner:'土地公。你们一个牵线一个兜底，一个负责拉红线一个负责修路。',
+    trib:'你最大的劫叫"拯救者情结"——心理学发现，过度帮别人解决感情问题的人，往往是在回避自己的感情。',
+    past:'你上辈子是月下老人座下的童子，因为偷偷给一个不该相爱的人牵了线，被贬下凡。这辈子变成了一个爱操心朋友感情事的人——不是你多管闲事，是你真的放不下那根线。'
+  },
+  {
+    id:'caishen', name:'财神', title:'财帛司 · 天庭正编', img:'https://aka.doubaocdn.com/s/CRl5u4vLD6',
+    tags:['务实','嗅觉灵敏','小钱不断'], pop:'人群占比：12%',
+    dims:[6,9,6,7,3,5],
+    radar:[{label:'人缘值',v:60},{label:'财运值',v:95},{label:'逍遥值',v:45},{label:'卷王值',v:60},{label:'法力值',v:75}],
+    daily:'你是财帛星君座下最精的那个。下凡第一件事不是看热闹，是看哪个铺子赚钱、哪个行当有风口。别人唠嗑你在算回本周期，朋友请客你在记下次该谁请。小钱不断，大钱看运气，但你从来不会让自己穷着。',
+    psych:'行为经济学有个发现：人对金钱的执着，本质上是对"失控感"的补偿——钱是我们能掌控的少数东西之一。你不是贪，你是通过算账来获得安全感。但自我决定理论也警告：外在动机过强，会挤出内在动机，长期幸福感反而下降。',
+    talent:'你的"机会扫描"能力极强——这是进化心理学里说的资源探测本能。你不是最聪明的，但你是最会发现机会的那个。',
+    pitfall:'你可能有"心理账户"偏差——塞勒提出的这个概念说，人会把钱分成不同账户。你对数字敏感，但容易忽略"体验"才是花钱回报率最高的东西。',
+    advice:'把每月预算里拨出10%叫"任性基金"——不看回报率，纯粹为开心花。你会发现这10%花出去的幸福感，比你攒下的90%都多。',
+    partner:'太上老君。他出技术你出钱，一个炼丹一个卖丹。',
+    trib:'你最大的劫叫"享乐适应"——心理学发现，加薪带来的快乐平均3个月就消退了。你赚的钱不少，但你总觉得不够。',
+    past:'你上辈子是财神座下的招财童子，因为私自动了财簿上一笔账，被贬下凡。这辈子你对钱特别敏感，总觉得攥在手里才踏实——不是你贪，是你穷怕了。'
+  },
+  {
+    id:'tai bai', name:'太白金星', title:'招安司 · 天庭正编', img:'https://aka.doubaocdn.com/s/z8FQm7FMa1',
+    tags:['情绪劳动','高情商','冲突回避'], pop:'人群占比：14%',
+    dims:[8,6,5,9,8,6],
+    radar:[{label:'人缘值',v:88},{label:'财运值',v:55},{label:'逍遥值',v:50},{label:'卷王值',v:50},{label:'法力值',v:72}],
+    daily:'你是天庭的和事佬，谁都不得罪。两拨神仙打起来你去劝，玉帝和哪个大仙闹别扭你去说和。你说话让人如沐春风，谁都觉得你是自己人。但只有你自己知道，你其实谁的队也没站，你只是怕冲突。',
+    psych:'社会学家霍克希尔德提出过"情绪劳动"——你为了让周围人舒服，一直在管理自己的真实情绪。短期这叫高情商，长期这叫"情绪异化"：你都快忘了自己真实感受是什么了。',
+    talent:'戈夫曼的"拟剧理论"说，人生就是舞台，每个人都在做印象管理。你是天生的表演艺术家——你知道在什么场合戴什么面具，这是极高的社会智力。',
+    pitfall:'情绪劳动是有代价的。研究发现长期压抑真实情绪的人，抑郁和焦虑指标更高。你不是真的没意见，你是把意见咽下去了——但咽下去的东西不会消失，会变成你的内耗。',
+    advice:'练习一次"健康的分歧"——不是所有冲突都需要你消化。说出来，关系反而更真。',
+    partner:'二郎神。他敢说真话你会兜底，一个唱白脸一个唱红脸。',
+    trib:'你最大的劫叫"讨好型自尊"——心理学发现，靠"让别人舒服"获得的认可，根基是不稳的。因为别人喜欢你的前提，是你永远不反驳。',
+    past:'你上辈子是玉帝身边的卷帘侍从，因为太会说话，所有矛盾都找你调解，最后被夹在中间，心灰意冷下凡。这辈子你还是学不会拒绝——不是你不想，是你怕一拒绝，就没人喜欢你了。'
+  },
+  {
+    id:'erlang', name:'二郎神', title:'武烈司 · 天庭正编', img:'https://aka.doubaocdn.com/s/lWBVsErtt0',
+    tags:['严谨','冷酷','标准处女座'], pop:'人群占比：10%',
+    dims:[4,9,9,9,3,2],
+    radar:[{label:'人缘值',v:40},{label:'财运值',v:65},{label:'逍遥值',v:25},{label:'卷王值',v:92},{label:'法力值',v:85}],
+    daily:'你是天庭武力值天花板，三眼一睁什么猫腻都看得见。你话少，原则性极强，说一不二。交给你的活从来不用催，因为你比deadline还早三天交。同事有点怕你，但也最信任你——因为你靠谱。',
+    psych:'大五人格里的"尽责性"是预测工作表现最强的人格维度，你在这项上得分极高。但心理学家把完美主义分成两种："适应型完美主义"（追求卓越，享受过程）和"非适应型完美主义"（害怕失败，全或无）。你可能在后一项上偏高。',
+    talent:'你的执行功能极强——这是心理学里说的"目标-计划-执行-监控"的整套认知能力。别人还在想，你已经做完了。',
+    pitfall:'非适应型完美主义的陷阱是"全或无"——要么100分，要么就是失败。你不相信别人能做到你标准的80分，但80分其实已经够用了。',
+    advice:'学会区分"卓越"和"完美"。卓越是"我能做得更好"，完美是"不够好就是失败"。试着把标准从100降到85，你会发现世界没有塌。',
+    partner:'太白金星。他负责说好话，你负责干实事。',
+    trib:'你最大的劫叫"冒充者综合征"——研究发现，越是能力强、标准高的人，越觉得自己其实没那么厉害，只是运气好。',
+    past:'你上辈子是玉帝外甥，因斧劈桃山救母而威名震天。但你太刚，不懂转弯，最后被猜忌贬下凡间。这辈子你还是那个认准了就不回头的人——孤独，但干净。'
+  },
+  {
+    id:'tudi', name:'土地公', title:'基层外派 · 一方土地', img:'https://aka.doubaocdn.com/s/VhUV2KGSKe',
+    tags:['踏实','人脉广','老黄牛'], pop:'人群占比：15%',
+    dims:[6,5,8,8,7,5],
+    radar:[{label:'人缘值',v:70},{label:'财运值',v:60},{label:'逍遥值',v:55},{label:'卷王值',v:80},{label:'法力值',v:68}],
+    daily:'你是一方土地，天庭最基层的神仙。这一片儿谁家吵架了、谁家丢了鸡、谁家孩子考上状元，你全知道。你级别不高，但街坊邻居都敬你。你不追求上天庭当多大的官，就守着自己这一亩三分地，谁有事你都帮。',
+    psych:'社会学家帕特南区分过两种社会资本："桥接型"（把不同圈子连起来）和"粘合型"（把自己社区的人粘得更紧）。你是后者——你不是最广的，但你是最稳的。心理学里还有个概念叫"管家责任"，你对周围的人有天然的照料义务感。',
+    talent:'信任是这个世界上最稀缺的资产，而你花了几十年积累它。安全型依恋研究发现，像你这样"稳定提供安全感"的人，是周围人心理健康的重要支柱。',
+    pitfall:'你的管家责任过载了。你对所有人负责，但没有人对你负责——不是别人不好，是你从来不开口要求。心理学叫这"自我牺牲倾向"，短期是美德，长期是耗竭。',
+    advice:'你的付出值得被看见，也值得被回报。练习把"我来"换成"你要不要试试"——你会发现别人也想为你做点什么。',
+    partner:'月老。你一个帮人牵线一个帮人兜底。',
+    trib:'你最大的劫叫"被需要=被爱"——心理学发现，习惯付出的人往往觉得：只有我帮别人，别人才不会离开我。但真正的关系不需要你一直当好人。',
+    past:'你上辈子是一个村落里的里正，一辈子为村民跑腿，死了以后上天念你勤恳，封了土地公。但你又因为太替别人着想，把自己的仙职越做越小——你帮所有人安了家，唯独自己的庙越来越破。'
+  },
+  {
+    id:'yeyou', name:'夜游神', title:'夜巡司 · 基层外派', img:'https://aka.doubaocdn.com/s/dTWo38hqj5',
+    tags:['夜行','慢热','深夜哲学家'], pop:'人群占比：13%',
+    dims:[2,5,3,3,4,3],
+    radar:[{label:'人缘值',v:25},{label:'财运值',v:40},{label:'逍遥值',v:75},{label:'卷王值',v:30},{label:'法力值',v:55}],
+    daily:'你是夜班巡逻的神仙。白天你困得像没充电，凌晨两点你灵感炸裂。不合群，不社交，不是因为你傲，是因为你真的跟大家作息对不上。热闹是他们的，你只有凌晨三点的月亮和一杯咖啡。',
+    psych:'心理学家荣格最早区分过"内向型"——你的心理能量来自独处而不是社交。后来的研究更细：一种叫"晚时型"（owl chronotype），你的生物钟比大多数人晚2小时，这不是你的错，是PER3基因决定的。心理学家温尼科特还说过，"独处的能力"是情绪成熟的标志之一。',
+    talent:'神经科学发现，大脑在夜间的"默认模式网络"特别活跃——这正是产生创造力、做深度思考的时候。你深夜想出来的东西，比白天所有会议加起来都有价值。',
+    pitfall:'你可能在经历"社会时差"——工作日逼自己早起，周末补觉，生物钟每周都在来回倒。研究发现这会导致慢性疲劳和情绪低落。不是你懒，是你的节奏跟社会节拍不对齐。',
+    advice:'不是你要改作息，是你需要找到跟白天世界共处的方式。接受"我就是夜行动物"，比逼自己当云雀型更健康。',
+    partner:'太上老君。你们俩都是夜猫子，一个炼丹一个巡夜。',
+    trib:'你最大的劫叫"不被理解的孤独"——你不是不需要朋友，是你的社交窗口跟大多数人错开了。',
+    past:'你上辈子是一个守夜人，一辈子在别人睡着的时候巡街。因为太安静，死了以后没人记得你，上天把你封了夜游神，让你继续在夜里醒着。你不是喜欢黑夜，是白天的世界你始终融不进去。'
+  },
+  {
+    id:'tianpeng', name:'天蓬元帅', title:'天河司 · 外聘合同仙', img:'https://aka.doubaocdn.com/s/Z8wIS2CUj5',
+    tags:['吃货','摆烂大师','快乐至上'], pop:'人群占比：12%',
+    dims:[6,4,2,4,5,9],
+    radar:[{label:'人缘值',v:65},{label:'财运值',v:50},{label:'逍遥值',v:92},{label:'卷王值',v:20},{label:'法力值',v:60}],
+    daily:'你是天河总督，天庭最快乐的神仙。天塌下来先吃顿好的再说。你不卷、不争、不内耗，不是因为你懒，是因为你想通了——成仙已经很累了，为什么还要跟自己过不去。你嘴馋、心宽、睡得香，是天庭所有人羡慕的那种人。',
+    psych:'自我决定理论说，人有三种基本心理需求：自主感、胜任感、归属感。你天生在"自主感"上得分很高。积极心理学里还有个概念叫"心理脱离"——就是工作后真的能把工作放下。这听起来像摆烂，其实是心理韧性的表现。',
+    talent:'你可能是这个测评里情绪恢复力最强的人。心理学研究发现，"当下感知力"强的人，长期幸福感更高——你不纠结过去，不焦虑未来，这是多少人求而不得的能力。',
+    pitfall:'你需要区分"健康的放下"和"回避型应对"。前者是"我尽力了，结果接受"，后者是"我不敢面对，所以我假装无所谓"。你偶尔在深夜冒出的那个念头——"我是不是该干点正事"——那不是焦虑，那是你的内在动机在敲门。',
+    advice:'快乐不是问题，用快乐逃避才是。每周留一个晚上，认真问自己一次：我现在的生活，是我真的想要的吗？',
+    partner:'夜游神。你们一个深夜吃夜宵一个深夜巡夜，固定饭搭子。',
+    trib:'你最大的劫叫"享乐适应的反面"——你以为自己在享受生活，但心理学发现，长期"即时满足"会降低你对延迟满足的忍耐力。',
+    past:'你上辈子是天河水军统帅，因为酒后犯了天条，被贬下凡错投猪胎。但你不后悔——比起当一个端着的神仙，你更想当一个吃饱了就睡的乐天派。那个错投的胎，其实是你自己选的。'
+  },
+  {
+    id:'laojun', name:'太上老君', title:'丹鼎司 · 无编散仙', img:'https://aka.doubaocdn.com/s/wi4XR8tNjc',
+    tags:['专注','社恐','隐藏大佬'], pop:'人群占比：8%',
+    dims:[2,7,5,5,1,2],
+    radar:[{label:'人缘值',v:20},{label:'财运值',v:70},{label:'逍遥值',v:65},{label:'卷王值',v:50},{label:'法力值',v:88}],
+    daily:'你躲在八卦炉后面炼丹，不参加朝会，不掺和政治。玉帝的蟠桃宴你能推就推，神仙的聚会你基本不去。不是你架子大，是你真的觉得——外面那些事，不如我炉里这颗丹有意思。你话少，但一开口就是定论。',
+    psych:'积极心理学家契克森米哈赖提出过"心流"（flow）——当你全神贯注做一件事，忘记时间流逝的那个状态。你可能比99%的人都更容易进入心流。神经科学还发现，深度专注者的大脑"默认模式网络"和"任务网络"切换更干净——你不内耗。',
+    talent:'你的深度工作能力是这个时代最稀缺的超能力。能在无干扰状态下专注超过90分钟的人，正在变成新的精英。你天生就是这种人。',
+    pitfall:'你的社会连接在"失血"。心理学发现，长期独处但不主动社交的人，不是快乐，是"情感表达失语"——你不是不想关心人，是你已经忘了怎么开口。',
+    advice:'每周做一次"社交小剂量"——给一个朋友发条消息，不是有事，就是问候一下。你会发现连接不用很多，一点点就够。',
+    partner:'财神。他卖丹你炼丹——但你根本不在乎赚不赚钱。',
+    trib:'你最大的劫叫"技能诅咒"——你的专注能力太强了，强到你觉得"我自己一个人就能搞定一切"。但心理学发现，哪怕是最伟大的创作者，也需要至少一个人告诉他：你的东西，被人看到了。',
+    past:'你上辈子是鸿钧老祖座下的大弟子，修道最久，道行最深。但你太专注于修炼，错过了成仙路上很多人和事。这辈子你还是那个两耳不闻窗外事的人——不是你冷漠，是你真的觉得炉里的火比外面的热闹更重要。'
+  }
+];
+
+// ====== 16道题 ======
+const QUESTIONS = [
+  {dim:0,q:'蟠桃宴散场，你通常？',opts:['还意犹未尽，拉着刚认识的神仙再去喝一轮','跟几个聊得来的多待一会儿','礼貌告别，自己先溜了','全程想找个角落躲着，终于散了']},
+  {dim:0,q:'下凡应酬一整天，回来的感受是？',opts:['太爽了！跟好多人聊了天，能量满满','还行，跟几个熟人聚了','有点累，需要自己待一会儿回血','社交透支，三天不想见人']},
+  {dim:0,q:'天庭派活要团队协作，你更喜欢？',opts:['头脑风暴，大家七嘴八舌','有讨论但有明确分工','自己先想清楚再跟别人对','最好给我一个独立任务别找我']},
+  {dim:1,q:'玉帝让你选下月巡查路线，你会？',opts:['先拉一张表对比各路线的效率和成本','大概看看数据，凭经验选','看哪条路有好吃的就选哪条','凭直觉，感觉哪条顺就哪条']},
+  {dim:1,q:'朋友找你诉苦，你第一反应是？',opts:['帮他分析问题出在哪、怎么解决','先听他说，给点实际建议','先共情，"我懂你这种感受"','直接跟着一起骂']},
+  {dim:1,q:'做重要决定前，你会？',opts:['列优缺点清单，算概率','问几个信任的人的意见','凭心里那股劲儿','拖到最后一刻让天意决定']},
+  {dim:2,q:'天庭派了个活，deadline一个月后，你会？',opts:['今天就开始做，三天干完剩下时间检查','先列计划，按节奏推进','中间想起来就做一点','最后三天通宵赶工']},
+  {dim:2,q:'你对"上班摸鱼"的态度是？',opts:['摸鱼？我不存在这个选项','忙完了偶尔摸一下','摸鱼是工作的必要组成部分','我上班就是为了摸鱼']},
+  {dim:2,q:'完成一项任务，你的标准是？',opts:['必须超出预期，细节全到位','做到交代的要求','差不多就行','能交差就谢天谢地']},
+  {dim:3,q:'天庭规定神仙不能私自下凡，你的态度是？',opts:['规定就是规定，遵守','一般遵守，特殊情况再说','看心情，管那么多干嘛','规定就是用来打破的']},
+  {dim:3,q:'你对"编制"两个字的感受是？',opts:['安全感！必须有编','有编挺好，没编也能活','编不编的不重要，自在就行','听到"编制"就想逃']},
+  {dim:3,q:'你更向往哪种生活？',opts:['稳定的天庭生活，按部就班','有稳定基础但偶尔能出去野','自由云游，想到哪到哪','无拘无束，谁也别想管我']},
+  {dim:4,q:'下凡逛一圈，你最在意的是？',opts:['这里的人过得怎么样，开不开心','风土人情，听听故事','这里的生意怎么做，有没有机会','这个地方的建筑/风景/法器有什么特别']},
+  {dim:4,q:'你更愿意把时间花在？',opts:['跟朋友维系感情','学习新的东西','搞钱/搞事业','钻研自己的爱好']},
+  {dim:5,q:'你今天特别开心，你会？',opts:['立刻发朋友圈/告诉所有朋友','跟身边人分享','自己心里乐就行','脸上看不出来']},
+  {dim:5,q:'你的朋友通常这样形容你？',opts:['情绪都写在脸上，很好懂','熟了之后挺外放的','不太看得出来在想什么','高冷/神秘/看不透']}
+];
+
+// ====== 状态 ======
+let currentPwd = '';
+let currentQ = 0;
+let answers = []; // 每题选了哪个选项 0-3
+let selectedOpt = -1;
+
+// ====== Supabase 密码操作 ======
+async function fetchPassword(pwd){
+  const r = await fetch(SUPABASE_URL+'/rest/v1/passwords?password=eq.'+pwd, {headers:SB_HEADERS});
+  const d = await r.json();
+  return d[0] || null;
+}
+async function incrementPassword(pwd){
+  const cur = await fetchPassword(pwd);
+  if(!cur) return null;
+  const r = await fetch(SUPABASE_URL+'/rest/v1/passwords?password=eq.'+pwd, {
+    method:'PATCH', headers:SB_HEADERS,
+    body: JSON.stringify({used_count: cur.used_count+1})
+  });
+  return r.json();
+}
+async function verifyPassword(){
+  const input = document.getElementById('pwd-input').value.trim().toUpperCase();
+  const errEl = document.getElementById('pwd-error');
+  if(!input){ errEl.textContent='请输入密码'; return; }
+  errEl.textContent = '验证中...';
+  try{
+    const row = await fetchPassword(input);
+    if(!row){ errEl.textContent='密码无效，请检查后重试'; return; }
+    if(row.used_count >= 3){ errEl.textContent='该密码已用完3次，请联系购买'; return; }
+    await incrementPassword(input);
+    currentPwd = input;
+    showScreen('welcome');
+    const left = 3 - (row.used_count+1);
+    document.getElementById('times-left').textContent = '本密码剩余测试次数：' + left + ' 次';
+  }catch(e){
+    errEl.textContent = '网络错误，请稍后重试';
+  }
+}
+
+// ====== 视图切换 ======
+function showScreen(name){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-'+name).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+// ====== 答题 ======
+function startQuiz(){
+  currentQ = 0;
+  answers = [];
+  showScreen('quiz');
+  renderQuestion();
+}
+function renderQuestion(){
+  const q = QUESTIONS[currentQ];
+  selectedOpt = answers[currentQ] !== undefined ? answers[currentQ] : -1;
+  document.getElementById('progress-fill').style.width = ((currentQ)/QUESTIONS.length*100)+'%';
+  document.getElementById('q-progress-text').textContent = (currentQ+1)+' / '+QUESTIONS.length;
+  document.getElementById('q-text').textContent = q.q;
+  const box = document.getElementById('options-box');
+  box.innerHTML = '';
+  q.opts.forEach((opt,i)=>{
+    const b = document.createElement('button');
+    b.className = 'opt'+(i===selectedOpt?' selected':'');
+    b.textContent = String.fromCharCode(65+i)+'. '+opt;
+    b.onclick = ()=>selectOpt(i);
+    box.appendChild(b);
+  });
+  document.getElementById('btn-back').style.visibility = currentQ===0?'hidden':'visible';
+  document.getElementById('btn-next').textContent = currentQ===QUESTIONS.length-1?'查看结果':'下一题';
+}
+function selectOpt(i){
+  selectedOpt = i;
+  answers[currentQ] = i;
+  renderQuestion();
+}
+function prevQuestion(){ if(currentQ>0){ currentQ--; renderQuestion(); } }
+function nextQuestion(){
+  if(selectedOpt<0 && answers[currentQ]===undefined){ showToast('请先选择一个答案'); return; }
+  if(currentQ < QUESTIONS.length-1){
+    currentQ++;
+    renderQuestion();
+  } else {
+    showResult();
+  }
+}
+
+// ====== 计分 ======
+function calcResult(){
+  const dimScores = [0,0,0,0,0,0];
+  const dimMax = [12,12,12,12,8,8]; // D1-D3各3题*4=12, D5-D6各2题*4=8
+  QUESTIONS.forEach((q,i)=>{
+    dimScores[q.dim] += (answers[i]!==undefined ? (4-answers[i]) : 0);
+  });
+  // 折算0-10
+  const dims = dimScores.map((s,i)=> s/dimMax[i]*10);
+  // 找最近神仙
+  let best = 0, bestDist = Infinity;
+  GODS.forEach((g,gi)=>{
+    let d = 0;
+    for(let k=0;k<6;k++){ d += Math.pow(dims[k]-g.dims[k],2); }
+    if(d<bestDist){ bestDist=d; best=gi; }
+  });
+  return {god:GODS[best], dims:dims};
+}
+
+function showResult(){
+  const {god,dims} = calcResult();
+  // 如果URL hash有答案，用URL的
+  document.getElementById('r-name').textContent = god.name;
+  document.getElementById('r-title').textContent = god.title;
+  document.getElementById('r-pop').textContent = god.pop;
+  document.getElementById('r-img').src = god.img;
+  const tagsBox = document.getElementById('r-tags');
+  tagsBox.innerHTML='';
+  god.tags.forEach(t=>{
+    const s = document.createElement('span');
+    s.className='tag'; s.textContent=t;
+    tagsBox.appendChild(s);
+  });
+  const radarBox = document.getElementById('r-radar');
+  radarBox.innerHTML='';
+  god.radar.forEach(r=>{
+    const item = document.createElement('div');
+    item.className='radar-item';
+    item.innerHTML = '<div class="radar-label"><span>'+r.label+'</span><span>'+r.v+'</span></div><div class="radar-track"><div class="radar-fill" style="width:'+r.v+'%"></div></div>';
+    radarBox.appendChild(item);
+  });
+  document.getElementById('r-daily').textContent = god.daily;
+  document.getElementById('r-psych').textContent = god.psych;
+  document.getElementById('r-talent').textContent = god.talent;
+  document.getElementById('r-pitfall').textContent = god.pitfall;
+  document.getElementById('r-advice').textContent = god.advice;
+  document.getElementById('r-partner').textContent = god.partner;
+  document.getElementById('r-trib').textContent = god.trib;
+  document.getElementById('r-past').textContent = god.past;
+  showScreen('result');
+  document.getElementById('progress-fill').style.width = '100%';
+  // 更新URL hash（分享链接）
+  const encoded = answers.join('');
+  history.replaceState(null,'','#r='+encoded);
+}
+
+// ====== 分享链接 ======
+function copyLink(){
+  const url = location.origin + location.pathname + '#r=' + answers.join('');
+  navigator.clipboard.writeText(url).then(()=>{
+    document.getElementById('share-tip').textContent = '链接已复制，发给朋友看看你们是不是同岗';
+  }).catch(()=>{
+    prompt('复制以下链接：', url);
+  });
+}
+
+// ====== 长图导出 ======
+function saveImage(){
+  const god = GODS.find(g=>g.name===document.getElementById('r-name').textContent);
+  const canvas = document.createElement('canvas');
+  canvas.width = 750;
+  canvas.height = 1500;
+  const ctx = canvas.getContext('2d');
+  // 背景
+  const grad = ctx.createLinearGradient(0,0,0,1500);
+  grad.addColorStop(0,'#fdf0e0');
+  grad.addColorStop(0.3,'#ffffff');
+  grad.addColorStop(1,'#fdf6ee');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0,0,750,1500);
+  // 标题
+  ctx.fillStyle = '#8a5a2a';
+  ctx.font = 'bold 28px "Noto Serif SC", serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('天庭编制测试', 375, 60);
+  // 神仙名
+  ctx.font = 'bold 64px "Noto Serif SC", serif';
+  ctx.fillText(god.name, 375, 150);
+  ctx.font = '16px "Noto Sans SC", sans-serif';
+  ctx.fillStyle = '#6b7280';
+  ctx.fillText(god.title, 375, 185);
+  // 插画
+  const img = new Image();
+  img.crossOrigin = 'anonymous';
+  img.onload = function(){
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(375, 310, 110, 0, Math.PI*2);
+    ctx.closePath();
+    ctx.clip();
+    ctx.drawImage(img, 265, 200, 220, 220);
+    ctx.restore();
+    // 标签
+    ctx.font = '14px "Noto Sans SC", sans-serif';
+    let tx = 375 - (god.tags.join('  ·  ').length*8)/2;
+    ctx.fillStyle = '#c47a86';
+    ctx.fillText(god.tags.join('  ·  '), 375, 460);
+    // 雷达数据
+    ctx.fillStyle = '#8a5a2a';
+    ctx.font = 'bold 18px "Noto Sans SC", sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText('五维法力值', 60, 520);
+    god.radar.forEach((r,i)=>{
+      const y = 555 + i*38;
+      ctx.fillStyle = '#6b7280';
+      ctx.font = '14px "Noto Sans SC", sans-serif';
+      ctx.fillText(r.label, 60, y);
+      ctx.fillStyle = '#e8e0d4';
+      ctx.fillRect(180, y-11, 450, 14);
+      ctx.fillStyle = '#c99a5e';
+      ctx.fillRect(180, y-11, 450*r.v/100, 14);
+      ctx.fillStyle = '#8a5a2a';
+      ctx.font = 'bold 14px "Noto Sans SC", sans-serif';
+      ctx.textAlign = 'right';
+      ctx.fillText(r.v, 650, y);
+      ctx.textAlign = 'left';
+    });
+    // 文案
+    ctx.fillStyle = '#1a1b1c';
+    ctx.font = '15px "Noto Sans SC", sans-serif';
+    wrapText(ctx, '你的天庭日常：', 60, 800, 630, 24, '#8a5a2a', true);
+    wrapText(ctx, god.daily, 60, 828, 630, 22, '#374151', false);
+    wrapText(ctx, '你的盲区：', 60, 1080, 630, 24, '#e05050', true);
+    wrapText(ctx, god.pitfall, 60, 1108, 630, 22, '#374151', false);
+    // 底部
+    ctx.fillStyle = '#999';
+    ctx.font = '13px "Noto Sans SC", sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('扫码测测你在天庭是什么编制', 375, 1450);
+    // 导出
+    try {
+      canvas.toBlob(blob=>{
+        if(!blob){ throw new Error('导出失败'); }
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = '天庭编制测试-'+god.name+'.png';
+        a.click();
+        URL.revokeObjectURL(url);
+        document.getElementById('share-tip').textContent = '长图已保存到下载目录';
+      });
+    } catch(e){
+      document.getElementById('share-tip').textContent = '自动保存失败，请长按截图保存';
+    }
+  };
+  img.src = god.img;
+}
+
+function wrapText(ctx, text, x, y, maxW, lh, color, bold){
+  ctx.fillStyle = color;
+  ctx.font = (bold?'bold ':'')+'15px "Noto Sans SC", sans-serif';
+  const chars = text.split('');
+  let line = '';
+  for(let i=0;i<chars.length;i++){
+    const test = line + chars[i];
+    if(ctx.measureText(test).width > maxW && line){
+      ctx.fillText(line, x, y);
+      line = chars[i];
+      y += lh;
+    } else {
+      line = test;
+    }
+  }
+  if(line) ctx.fillText(line, x, y);
+}
+
+// ====== 再测一次 / 好评 ======
+async function retake(){
+  history.replaceState(null,'',location.pathname);
+  showScreen('welcome');
+  try{
+    const row = await fetchPassword(currentPwd);
+    const left = row ? (3 - row.used_count) : 0;
+    document.getElementById('times-left').textContent = '本密码剩余测试次数：' + left + ' 次';
+  }catch(e){
+    document.getElementById('times-left').textContent = '';
+  }
+}
+function showReview(){ document.getElementById('review-modal').classList.add('show'); }
+function closeReview(){ document.getElementById('review-modal').classList.remove('show'); }
+
+// ====== 管理员 ======
+let adminClickCount = 0;
+function adminClick(){
+  adminClickCount++;
+  if(adminClickCount >= 3){
+    showScreen('admin');
+    renderAdminList();
+  }
+}
+async function genPasswords(){
+  const n = parseInt(document.getElementById('gen-count').value)||20;
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  const batch = [];
+  for(let i=0;i<n;i++){
+    let pwd = '';
+    for(let j=0;j<6;j++) pwd += chars[Math.floor(Math.random()*chars.length)];
+    batch.push({password: pwd, used_count: 0});
+  }
+  try{
+    await fetch(SUPABASE_URL+'/rest/v1/passwords', {
+      method:'POST', headers:SB_HEADERS, body: JSON.stringify(batch)
+    });
+    showToast('已生成 '+n+' 个密码');
+    renderAdminList();
+  }catch(e){
+    showToast('生成失败：'+e.message);
+  }
+}
+async function renderAdminList(){
+  const box = document.getElementById('admin-pwd-list');
+  box.innerHTML = '<div style="color:#999;font-size:12px;padding:8px;">加载中...</div>';
+  try{
+    const r = await fetch(SUPABASE_URL+'/rest/v1/passwords?select=*&order=created_at.desc&limit=500', {headers:SB_HEADERS});
+    const rows = await r.json();
+    box.innerHTML = '';
+    rows.forEach(row=>{
+      const used = row.used_count;
+      const div = document.createElement('div');
+      div.className = 'pwd-row';
+      div.innerHTML = '<span class="pwd">'+row.password+'</span><span class="used'+(used>=3?' exceed':'')+'">已用 '+used+'/3</span>';
+      box.appendChild(div);
+    });
+  }catch(e){
+    box.innerHTML = '<div style="color:#e05050;font-size:12px;padding:8px;">加载失败：'+e.message+'</div>';
+  }
+}
+async function exportPasswords(){
+  try{
+    const r = await fetch(SUPABASE_URL+'/rest/v1/passwords?select=password', {headers:SB_HEADERS});
+    const rows = await r.json();
+    const list = rows.map(x=>x.password).join('\n');
+    navigator.clipboard.writeText(list).then(()=>showToast('密码列表已复制'));
+  }catch(e){ showToast('导出失败'); }
+}
+function exportSeed(){
+  showToast('云端模式无需种子代码，密码直接在Supabase管理');
+}
+async function resetAll(){
+  if(!confirm('确认重置所有密码的使用次数？')) return;
+  try{
+    await fetch(SUPABASE_URL+'/rest/v1/passwords', {
+      method:'PATCH', headers:SB_HEADERS, body: JSON.stringify({used_count:0})
+    });
+    renderAdminList();
+  }catch(e){ showToast('重置失败'); }
+}
+
+// ====== toast ======
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 1800);
+}
+
+// ====== 从URL hash恢复结果 ======
+window.addEventListener('load', ()=>{
+  if(location.hash.startsWith('#r=')){
+    const str = location.hash.slice(3);
+    answers = str.split('').map(c=>parseInt(c));
+    if(answers.length === QUESTIONS.length && answers.every(n=>!isNaN(n))){
+      showResult();
+    }
+  }
+});
+</script>
+</body>
+</html>
