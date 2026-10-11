@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>天庭编制测试</title>
+<title>天庭人格研究所 · Celestial Personality Lab</title>
 <link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Noto+Serif+SC:wght@400;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700&display=swap">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -11,14 +11,17 @@
   --bg:#fdf6ee;--card:#fff;--text:#1a1b1c;--text2:#6b7280;--line:#e8e0d4;
   --gold:#8a5a2a;--gold-light:#e1b98f;--red:#c47a86;--green:#5a9a6a;--blue:#4a7bc4;
 }
-html,body{background:#f0e8dc;font-family:'Noto Sans SC','PingFang SC',sans-serif;color:var(--text);line-height:1.6}
-body{max-width:480px;margin:0 auto;min-height:100vh;background:var(--bg);position:relative}
-.screen{display:none;min-height:100vh;padding:24px 20px 40px}
+html,body{background:#fdf6ee;font-family:'Noto Sans SC','PingFang SC',sans-serif;color:var(--text);line-height:1.6}
+body{max-width:480px;margin:0 auto;min-height:100vh;position:relative;
+  background-image:linear-gradient(rgba(253,246,238,0.82),rgba(253,246,238,0.88)),url('https://aka.doubaocdn.com/s/El27RGg65j');
+  background-size:cover;background-position:center top;background-attachment:fixed;background-repeat:no-repeat;}
+.screen{display:none;min-height:100vh;padding:24px 20px 40px;position:relative;z-index:1}
 .screen.active{display:block}
 h1,h2,h3{font-family:'Noto Serif SC',serif}
 
 /* ===== 密码门 ===== */
-#screen-password{display:flex;flex-direction:column;justify-content:center;align-items:center;min-height:100vh;text-align:center}
+#screen-password{display:none;flex-direction:column;justify-content:center;align-items:center;min-height:100vh;text-align:center}
+#screen-password.active{display:flex}
 .lock-icon{width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,#e1b98f,#c99a5e);display:flex;align-items:center;justify-content:center;margin-bottom:20px}
 .lock-icon svg{width:36px;height:36px;fill:#fff}
 #screen-password h1{font-size:24px;font-weight:700;margin-bottom:8px;letter-spacing:2px}
@@ -117,7 +120,7 @@ h1,h2,h3{font-family:'Noto Serif SC',serif}
   <div class="lock-icon">
     <svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1s3.1 1.39 3.1 3.1v2z"/></svg>
   </div>
-  <h1>天庭编制测试</h1>
+  <h1>天庭人格研究所</h1>
   <div class="sub">输入密码开始测试 · 每个密码可测3次</div>
   <input type="text" class="pwd-input" id="pwd-input" placeholder="请输入密码" maxlength="12" autocomplete="off">
   <div class="pwd-error" id="pwd-error"></div>
@@ -127,7 +130,7 @@ h1,h2,h3{font-family:'Noto Serif SC',serif}
 <!-- 欢迎页 -->
 <div class="screen" id="screen-welcome">
   <img class="hero-img" src="https://aka.doubaocdn.com/s/hOPhyqxTDy" alt="天庭编制测试">
-  <h1>你在天庭是什么编制？</h1>
+  <h1>你在天庭是什么神仙？</h1>
   <div class="desc">16道真实场景题，测出你的天庭岗位 + 编制等级。<br>原来神仙也在打工。</div>
   <div class="times-left" id="times-left"></div>
   <button class="btn btn-primary" onclick="startQuiz()">开始答题</button>
@@ -553,7 +556,7 @@ function saveImage(){
   ctx.fillStyle = '#8a5a2a';
   ctx.font = 'bold 28px "Noto Serif SC", serif';
   ctx.textAlign = 'center';
-  ctx.fillText('天庭编制测试', 375, 60);
+  ctx.fillText('天庭人格研究所', 375, 60);
   // 神仙名
   ctx.font = 'bold 64px "Noto Serif SC", serif';
   ctx.fillText(god.name, 375, 150);
@@ -607,7 +610,7 @@ function saveImage(){
     ctx.fillStyle = '#999';
     ctx.font = '13px "Noto Sans SC", sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText('扫码测测你在天庭是什么编制', 375, 1450);
+    ctx.fillText('扫码测测你是什么神仙', 375, 1450);
     // 导出
     try {
       canvas.toBlob(blob=>{
@@ -615,7 +618,7 @@ function saveImage(){
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = '天庭编制测试-'+god.name+'.png';
+        a.download = '天庭人格研究所-'+god.name+'.png';
         a.click();
         URL.revokeObjectURL(url);
         document.getElementById('share-tip').textContent = '长图已保存到下载目录';
